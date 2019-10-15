@@ -8,36 +8,36 @@ import javax.imageio.*;
 
 public class Player implements Sprite {
 
-	String PLAYER_IMAGE = "assets/player.png";
-	int SCALE_UP = 1;
-	int STOP_SCALE_UP = 200;
-	int SCALE_DOWN = -1;
-	int STOP_SCALE_DOWN = -200;
-	int NOT_SCALING = 0;
-	double SCALAR_MULTIPLE = 1.002;
-	double ORIGINAL_TO_HEIGHT_0_SCALAR = 0.2;
-	double ORIGINAL_TO_HEIGHT_1_SCALAR = ORIGINAL_TO_HEIGHT_0_SCALAR * Math.pow(SCALAR_MULTIPLE, (STOP_SCALE_UP - 1));
-	double ORIGINAL_TO_HEIGHT_2_SCALAR = ORIGINAL_TO_HEIGHT_1_SCALAR * Math.pow(SCALAR_MULTIPLE, (STOP_SCALE_UP - 1));
+	private static final String PLAYER_IMAGE = "assets/player.png";
+	private static final int SCALE_UP = 1;
+	private static final int STOP_SCALE_UP = 200;
+	private static final int SCALE_DOWN = -1;
+	private static final int STOP_SCALE_DOWN = -200;
+	private static final int NOT_SCALING = 0;
+	private static final double SCALAR_MULTIPLE = 1.002;
+	private static final double ORIGINAL_TO_HEIGHT_0_SCALAR = 0.2;
+	private static final double ORIGINAL_TO_HEIGHT_1_SCALAR = ORIGINAL_TO_HEIGHT_0_SCALAR * Math.pow(SCALAR_MULTIPLE, (STOP_SCALE_UP - 1));
+	private static final double ORIGINAL_TO_HEIGHT_2_SCALAR = ORIGINAL_TO_HEIGHT_1_SCALAR * Math.pow(SCALAR_MULTIPLE, (STOP_SCALE_UP - 1));
 	
-	BufferedImage image;
-	BufferedImage originalImage;
-	BufferedImage shadow;
-	BufferedImage originalShadow;
-	Point2D.Double currentPosition;
-	int currentHeight;
-	int imageWidth;
-	int imageHeight;
-	int originalImageWidth;
-	int originalImageHeight;
-	boolean movingForward;
-	boolean movingLeft;
-	boolean movingRight;
-	boolean movingBackward;
-	boolean collidingTop;
-	boolean collidingBottom;
-	boolean collidingLeft;
-	boolean collidingRight;
-	int scaling;
+	private BufferedImage image;
+	private BufferedImage originalImage;
+	private BufferedImage shadow;
+	private BufferedImage originalShadow;
+	private Point2D.Double currentPosition;
+	private int currentHeight;
+	private int imageWidth;
+	private	int imageHeight;
+	private int originalImageWidth;
+	private int originalImageHeight;
+	private boolean movingForward;
+	private boolean movingLeft;
+	private boolean movingRight;
+	private boolean movingBackward;
+	private boolean collidingTop;
+	private boolean collidingBottom;
+	private boolean collidingLeft;
+	private boolean collidingRight;
+	private int scaling;
 	private List<PlayerProjectile> projectiles;
 	
 	public Player(int x, int y) {
@@ -286,9 +286,6 @@ public class Player implements Sprite {
 	public boolean isCollidingRight() {
 		return collidingRight;
 	}
-	
-	
-
 	
 	public void loseLife() {
 		System.out.println("OUCH");
