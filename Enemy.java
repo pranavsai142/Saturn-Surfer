@@ -37,7 +37,7 @@ public class Enemy implements Sprite {
 		
 		imageWidth = image.getWidth();
 		imageHeight = image.getHeight();
-		
+
 		currentHeight = 0;
 		
 		movingForward = false;

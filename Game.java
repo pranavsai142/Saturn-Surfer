@@ -65,12 +65,11 @@ public class Game extends JPanel implements KeyListener, ActionListener {
 		super.paintComponent(g);
 		Graphics2D g2d = (Graphics2D) g;
 
+
 		
-		Image playerImage = player.getImage();
 		
 		g2d.drawImage(background, 0, 0, this);
 
-		g2d.drawImage(player.getImage(), ((int) player.getX()), ((int) player.getY()), this);
 
 		for (Enemy enemy : enemies) {
 			List<RegEnemyProjectile> regEnemyProjectiles = enemy.getProjectiles();
@@ -88,6 +87,7 @@ public class Game extends JPanel implements KeyListener, ActionListener {
 
 			g2d.drawImage(projectile.getImage(), ((int) projectile.getX()), ((int) projectile.getY()), this);
 		}
+		
 
 // 		
 // 		ArrayList<Image> lifeCrystalImages = new ArrayList<Image>();
@@ -95,6 +95,13 @@ public class Game extends JPanel implements KeyListener, ActionListener {
 // 		for(LifeCrystal lifeCrystal: lifeCrystals) {
 // 			lifeCrystalImages.add(lifeCrystal.getImage());
 // 		}
+
+		if(player.hasShadow()) {
+			Point2D.Double shadowXY = player.getShadowXY();
+			g2d.drawImage(player.getShadowImage(), ((int) shadowXY.getX()), ((int) shadowXY.getY()), this);
+		}
+		
+		g2d.drawImage(player.getImage(), ((int) player.getX()), ((int) player.getY()), this);
 	}
 	
 			
@@ -216,6 +223,7 @@ public class Game extends JPanel implements KeyListener, ActionListener {
 		Point2D.Double topLeftBoundPoint = player.getTopLeftBoundPoint();
 		double y = 447 - (.5 * topLeftBoundPoint.getX());
 		if(topLeftBoundPoint.getY() <= y) {
+			System.out.println("TOP TOP TOP");
 			return true;
 		}
 		return false;
@@ -225,6 +233,7 @@ public class Game extends JPanel implements KeyListener, ActionListener {
 		Point2D.Double bottomBoundPoint = player.getBottomBoundPoint();
 		double y = 960 - (.5 * bottomBoundPoint.getX());
 		if(bottomBoundPoint.getY() >= y) {
+			System.out.println("BOTTOM BOTTOM BOTTOM");
 			return true;
 		}
 		return false;
@@ -241,9 +250,11 @@ public class Game extends JPanel implements KeyListener, ActionListener {
 	public boolean playerIntersectingEnemy() {
 		Shape playerBound = player.getBoundingShape();
 		for(Enemy enemy : enemies) {
-			Shape enemyBound = enemy.getBoundingShape();
-			if(intersects(playerBound, enemyBound)) {
-				return true;
+			if(enemy.getHeight() == player.getHeight()) {
+				Shape enemyBound = enemy.getBoundingShape();
+				if(intersects(playerBound, enemyBound)) {
+					return true;
+				}	
 			}
 		}
 		return false;
@@ -261,10 +272,11 @@ public class Game extends JPanel implements KeyListener, ActionListener {
 	}
 		
 	public void keyTyped(KeyEvent e) {
+	
 	}
 	
 	public void keyPressed(KeyEvent e) {
-// 		System.out.println("KEY PRESSED");
+		System.out.println("KEY PRESSED");
 		int id = e.getKeyCode();
 		if(id == 87) {
 			player.movingForward(true);
