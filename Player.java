@@ -11,17 +11,17 @@ public class Player implements Sprite {
 	String PLAYER_IMAGE = "assets/playerColor.png";
 	String PLAYER_SHADOW_IMAGE = "assets/player_shadow.png";
 	int SCALE_UP = 1;
-	int STOP_SCALE_UP = 200;
+	int STOP_SCALE_UP = 20;
 	int SCALE_DOWN = -1;
-	int STOP_SCALE_DOWN = -200;
+	int STOP_SCALE_DOWN = -20;
 	int NOT_SCALING = 0;
-	double SCALAR_MULTIPLE = 1.002;
+	double SCALAR_MULTIPLE = 1.008;
 	double ORIGINAL_TO_HEIGHT_0_SCALAR = 0.2;
 	double ORIGINAL_TO_HEIGHT_1_SCALAR = ORIGINAL_TO_HEIGHT_0_SCALAR * Math.pow(SCALAR_MULTIPLE, (STOP_SCALE_UP - 1));
 	double ORIGINAL_TO_HEIGHT_2_SCALAR = ORIGINAL_TO_HEIGHT_1_SCALAR * Math.pow(SCALAR_MULTIPLE, (STOP_SCALE_UP - 1));
 
-	double SHADOW_SCALAR_MULTIPLE = 1.002;
-	double ORIGINAL_SHADOW_TO_HEIGHT_1_SCALAR = 0.65;
+	double SHADOW_SCALAR_MULTIPLE = 1.008;
+	double ORIGINAL_SHADOW_TO_HEIGHT_1_SCALAR = 0.55;
 	double ORIGINAL_SHADOW_TO_HEIGHT_2_SCALAR = ORIGINAL_SHADOW_TO_HEIGHT_1_SCALAR * Math.pow(SHADOW_SCALAR_MULTIPLE, (STOP_SCALE_UP - 1));
 
 	double CURRENT_HEIGHT_DECIMAL_INCREMENT = (1/(STOP_SCALE_UP * 1.0));
@@ -346,7 +346,7 @@ public class Player implements Sprite {
 	}
 
 	public void shoot() {
-		projectiles.add(new PlayerProjectile((int)(currentPosition.getX() + imageWidth - (10 * currentHeight * 5)), (int)(currentPosition.getY()), currentHeight));
+		projectiles.add(new PlayerProjectile((int)(currentPosition.getX() + imageWidth - 9 - (currentHeight * 5)), (int)(currentPosition.getY() -  4 - currentHeight), currentHeight));
 		//System.out.println(projectiles.size());
 	}
 

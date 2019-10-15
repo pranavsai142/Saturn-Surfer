@@ -29,6 +29,7 @@ public class Game extends JPanel implements KeyListener, ActionListener {
 	private static final int PLAY = 2;
 	private static final int EXPOSITION = 1;
 	private static final int START = 0;
+	
 
 	private BufferedImage fullBackground;
 	private BufferedImage fullBackgroundPlaying;
@@ -134,16 +135,18 @@ public class Game extends JPanel implements KeyListener, ActionListener {
 		Graphics2D g2d = (Graphics2D) g;
 		
 		if(mode == START) {
+			setOpaque(false);
 			g2d.drawImage(background, 0, 0, this);
 			g2d.drawImage(startImage, 0, 0, this);
 		}
 		
 		if(mode == EXPOSITION) {
+			setOpaque(false);
 			g2d.drawImage(expositionImage, 0, 0, this);
 		}	
 
 		if(mode == PLAY || mode == GAME_OVER) {
-			g2d.drawImage(saturnImage, 0, 0, this);
+			setOpaque(true);
 			g2d.drawImage(background, 0, 0, this);
 
 
@@ -196,20 +199,31 @@ public class Game extends JPanel implements KeyListener, ActionListener {
 	}
 
 	public void recalculateBackground() {
+		AlphaComposite ac = AlphaComposite.getInstance(AlphaComposite.SRC_OVER);
 		Graphics g = background.getGraphics();
+		Graphics2D g2d = (Graphics2D) g;
 		//if (draw) {
 			if(mode == PLAY) {
-				g.drawImage(fullBackgroundPlaying, ((int) offset.getX()), ((int) offset.getY()), this);
+				g2d.drawImage(saturnImage, 0, 0, this);
+				g2d.drawImage(fullBackgroundPlaying, ((int) offset.getX()), ((int) offset.getY()), this);
+				g2d.setComposite(ac);
+				manageOffset();
+			}
+			else if(mode == EXPOSITION) {
+				g2d.drawImage(expositionImage, 0, 0, this);
 			}
 			else {
-				g.drawImage(fullBackground, ((int) offset.getX()), ((int) offset.getY()), this);
+				g2d.drawImage(fullBackground, ((int) offset.getX()), ((int) offset.getY()), this);
+				manageOffset();
 			}
-			offset = new Point2D.Double(offset.getX() - 2, offset.getY() + 1);
-			// repeat image
-			if (offset.getX() <= -1220.0) {
-				offset = new Point2D.Double(-696, -352);
-			}
-		//}
+	}
+	
+	public void manageOffset() {
+		offset = new Point2D.Double(offset.getX() - 2, offset.getY() + 1);
+		// repeat image
+		if (offset.getX() <= -1220.0) {
+			offset = new Point2D.Double(-696, -352);
+		}
 	}
 
 	public void recalculateSpritePositions() {
@@ -443,13 +457,10 @@ public class Game extends JPanel implements KeyListener, ActionListener {
 			if (time > lastAttack + ROFcoolDownTime) {
 				if(mode == START) {
 					mode = EXPOSITION;
-					backgroundTime.stop();
-					repaint();
 				}
 				else if(mode == EXPOSITION) {
 					offset = new Point2D.Double(0, (fullBackground.getHeight() - PANEL_HEIGHT) * -1.0);
 					mode = PLAY;
-					backgroundTime.start();
 					spriteTime.start();
 				}
 				else if(mode == PLAY) {

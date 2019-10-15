@@ -13,7 +13,7 @@ public class PlayerProjectile implements Sprite {
 	private static final String PROJECTILE_IMAGE = "assets/red_projectile.png";
 	private static final double ORIGINAL_TO_HEIGHT_0_SCALAR = .2;
 	private static final double ORIGINAL_TO_HEIGHT_1_SCALAR = .3;
-	private static final double ORIGINAL_TO_HEIGHT_2_SCALAR = .6;
+	private static final double ORIGINAL_TO_HEIGHT_2_SCALAR = .53;
 	private static final int TOP_LEFT_HEIGHT = 45;
 	private static final int BOTTOM_WIDTH = 18;
 	private static final int TOP_RIGHT_HEIGHT = 25;
