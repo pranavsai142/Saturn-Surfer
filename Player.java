@@ -9,6 +9,7 @@ import javax.imageio.*;
 public class Player implements Sprite {
 
 	String PLAYER_IMAGE = "assets/player.png";
+	String PLAYER_SHADOW_IMAGE = "assets/player_shadow.png";
 	int SCALE_UP = 1;
 	int STOP_SCALE_UP = 200;
 	int SCALE_DOWN = -1;
@@ -19,16 +20,27 @@ public class Player implements Sprite {
 	double ORIGINAL_TO_HEIGHT_1_SCALAR = ORIGINAL_TO_HEIGHT_0_SCALAR * Math.pow(SCALAR_MULTIPLE, (STOP_SCALE_UP - 1));
 	double ORIGINAL_TO_HEIGHT_2_SCALAR = ORIGINAL_TO_HEIGHT_1_SCALAR * Math.pow(SCALAR_MULTIPLE, (STOP_SCALE_UP - 1));
 	
+	double SHADOW_SCALAR_MULTIPLE = 1.002;
+	double ORIGINAL_SHADOW_TO_HEIGHT_1_SCALAR = 0.65;
+	double ORIGINAL_SHADOW_TO_HEIGHT_2_SCALAR = ORIGINAL_SHADOW_TO_HEIGHT_1_SCALAR * Math.pow(SHADOW_SCALAR_MULTIPLE, (STOP_SCALE_UP - 1));
+	
+	double CURRENT_HEIGHT_DECIMAL_INCREMENT = (1/(STOP_SCALE_UP * 1.0));
+	
 	BufferedImage image;
 	BufferedImage originalImage;
-	BufferedImage shadow;
-	BufferedImage originalShadow;
+	BufferedImage shadowImage;
+	BufferedImage originalShadowImage;
 	Point2D.Double currentPosition;
 	int currentHeight;
+	double currentHeightDecimal;
 	int imageWidth;
 	int imageHeight;
 	int originalImageWidth;
 	int originalImageHeight;
+	int shadowImageWidth;
+	int shadowImageHeight;
+	int originalShadowImageWidth;
+	int originalShadowImageHeight;
 	boolean movingForward;
 	boolean movingLeft;
 	boolean movingRight;
@@ -53,7 +65,18 @@ public class Player implements Sprite {
 		
 		initImageDimensions();
 		
+		try {
+			originalShadowImage = ImageIO.read(new File(PLAYER_SHADOW_IMAGE));
+		} catch (IOException e) {
+			System.out.println("ASSET LOADING PROBLEM");
+		}
+		
+		initOriginalShadowImageDimensions();
+		
+		shadowImage = null;
+		
 		currentHeight = 0;
+		currentHeightDecimal = 0.0;
 		
 		movingForward = false;
 		movingLeft = false;
@@ -72,6 +95,7 @@ public class Player implements Sprite {
 	
 	
 	public Shape getBoundingShape() {
+		initImageDimensions();
 		Path2D.Double bound = new Path2D.Double();
 		bound.moveTo(currentPosition.getX(),currentPosition.getY() + ((int) imageHeight/3));
 		bound.lineTo(currentPosition.getX() + ((2 * imageWidth)/3), currentPosition.getY() + imageHeight);
@@ -81,14 +105,32 @@ public class Player implements Sprite {
 	}
 	
 	public Point2D.Double getTopLeftBoundPoint() {
-		return new Point2D.Double(currentPosition.getX(),currentPosition.getY() + imageHeight/3);
+		if(currentHeight == 0) {
+			return new Point2D.Double(currentPosition.getX(),currentPosition.getY() + imageHeight/3);
+		}
+		if(currentHeight > 0) {
+			Point2D.Double p = getShadowXY();
+			return new Point2D.Double(p.getX(), p.getY() + shadowImageHeight/3);
+		}
+		return null;
 	}
 	
 	public Point2D.Double getBottomBoundPoint() {
-		return new Point2D.Double(currentPosition.getX() + ((2 * imageWidth)/3), currentPosition.getY() + imageHeight);
+		if(currentHeight == 0) {
+			return new Point2D.Double(currentPosition.getX() + ((2 * imageWidth)/3), currentPosition.getY() + imageHeight);
+		}
+		if(currentHeight > 0) {
+			Point2D.Double p = getShadowXY();
+			return new Point2D.Double(p.getX() + ((2 * shadowImageWidth)/3), p.getY() + shadowImageHeight);
+		}
+		return null;
 	}
 	
 	public Image getImage() {
+		if(scaling == STOP_SCALE_UP || scaling == STOP_SCALE_DOWN) {
+			System.out.println("DONE");
+			scaling = NOT_SCALING;
+		}
 		if(scaling > NOT_SCALING) {
 			System.out.println("attempting scale up");
 			scaleImageUp();
@@ -100,6 +142,18 @@ public class Player implements Sprite {
 		return image;
 	}
 	
+	public Image getShadowImage() {
+		if(scaling > NOT_SCALING) {
+			System.out.println("attempting to scale shadow up");
+			scaleShadowUp();
+		}
+		else if(scaling < NOT_SCALING) {
+			System.out.println("attempting to scale shadow down");
+			scaleShadowDown();
+		}
+		return shadowImage;
+	}
+	
 	public List<PlayerProjectile> getProjectiles() {
 	    return projectiles;
 	}
@@ -109,42 +163,62 @@ public class Player implements Sprite {
 // 	}
 	
 	public void scaleImageUp() {
-		if(scaling == STOP_SCALE_UP) {
-			scaling = NOT_SCALING;
+		double scalar;
+		if(currentHeight == 1) {
+			scalar = (ORIGINAL_TO_HEIGHT_0_SCALAR * Math.pow(SCALAR_MULTIPLE, scaling));
 		}
 		else {
-			double scalar;
-			if(currentHeight == 1) {
-				scalar = (ORIGINAL_TO_HEIGHT_0_SCALAR * Math.pow(SCALAR_MULTIPLE, scaling));
-			}
-			else {
-				scalar = (ORIGINAL_TO_HEIGHT_1_SCALAR * Math.pow(SCALAR_MULTIPLE, scaling));
-			}
-			System.out.println("SCALAR:" + scalar);
-			image = resize(originalImage , ((int) (scalar * originalImageWidth)), ((int) (scalar * originalImageHeight)));
-			initImageDimensions();
-        	scaling++;
+			scalar = (ORIGINAL_TO_HEIGHT_1_SCALAR * Math.pow(SCALAR_MULTIPLE, scaling));
 		}
+// 		System.out.println("SCALAR:" + scalar);
+		image = resize(originalImage , ((int) (scalar * originalImageWidth)), ((int) (scalar * originalImageHeight)));
+		initImageDimensions();
+    	scaling++;
+    	currentHeightDecimal += CURRENT_HEIGHT_DECIMAL_INCREMENT;
     }
     
 	public void scaleImageDown() {
-		if(scaling == STOP_SCALE_DOWN) {
-			scaling = NOT_SCALING;
+		double scalar;
+		if(currentHeight == 1) {
+			System.out.println("YIIIPPPE");
+			scalar = (ORIGINAL_TO_HEIGHT_2_SCALAR * Math.pow((1/SCALAR_MULTIPLE), -scaling));
 		}
 		else {
-			double scalar;
-			if(currentHeight == 1) {
-				System.out.println("YIIIPPPE");
-				scalar = (ORIGINAL_TO_HEIGHT_2_SCALAR * Math.pow((1/SCALAR_MULTIPLE), -scaling));
-			}
-			else {
-				scalar = (ORIGINAL_TO_HEIGHT_1_SCALAR * Math.pow((1/SCALAR_MULTIPLE), -scaling));
-			}
-			System.out.println("SCALAR:" + scalar);
-			image = resize(originalImage , ((int) (scalar * originalImageWidth)), ((int) (scalar * originalImageHeight)));
-			initImageDimensions();
-        	scaling--;
+			scalar = (ORIGINAL_TO_HEIGHT_1_SCALAR * Math.pow((1/SCALAR_MULTIPLE), -scaling));
 		}
+// 		System.out.println("SCALAR:" + scalar);
+		image = resize(originalImage , ((int) (scalar * originalImageWidth)), ((int) (scalar * originalImageHeight)));
+		initImageDimensions();
+        scaling--;
+        currentHeightDecimal -= CURRENT_HEIGHT_DECIMAL_INCREMENT;
+    }
+    
+    public void scaleShadowUp() {
+    	double scalar;
+    	if(currentHeight == 1) {
+//     		System.out.println("WOOPDEEDOODAH");
+    		scalar = (ORIGINAL_SHADOW_TO_HEIGHT_1_SCALAR * Math.pow((1/SHADOW_SCALAR_MULTIPLE), (STOP_SCALE_UP - scaling)));
+    	}
+    	else {
+    		scalar = (ORIGINAL_SHADOW_TO_HEIGHT_1_SCALAR * Math.pow(SHADOW_SCALAR_MULTIPLE, scaling));
+    	}
+// 		System.out.println("SCALAR:" + scalar);
+		shadowImage = resize(originalShadowImage , ((int) (scalar * originalShadowImageWidth)), ((int) (scalar * originalShadowImageHeight)));
+		initShadowImageDimensions();
+    }
+    
+    public void scaleShadowDown() {
+    	double scalar;
+    	if(currentHeight == 1) {
+//     		System.out.println("WOOPDEEDOODAH");
+    		scalar = (ORIGINAL_SHADOW_TO_HEIGHT_2_SCALAR * Math.pow((1/SHADOW_SCALAR_MULTIPLE), -scaling));
+    	}
+    	else {
+    		scalar = (ORIGINAL_SHADOW_TO_HEIGHT_1_SCALAR * Math.pow((1/SHADOW_SCALAR_MULTIPLE), (-scaling)));
+    	}
+// 		System.out.println("SCALAR:" + scalar);
+		shadowImage = resize(originalShadowImage , ((int) (scalar * originalShadowImageWidth)), ((int) (scalar * originalShadowImageHeight)));
+		initShadowImageDimensions();
     }
     
 
@@ -170,13 +244,16 @@ public class Player implements Sprite {
 		originalImageHeight = originalImage.getHeight();
     }
     
-    public BufferedImage getScaledUpBufferedImage() {
-    	return new BufferedImage((int) (imageWidth * 2), (int) (imageHeight * 2), BufferedImage.TYPE_INT_RGB);
+	public void initShadowImageDimensions() {
+    	shadowImageWidth = shadowImage.getWidth();
+		shadowImageHeight = shadowImage.getHeight();
     }
     
-    public BufferedImage getScaledDownBufferedImage() {
-    	return new BufferedImage((int) (imageWidth * (1/2)), (int) (imageHeight * (1/2)), BufferedImage.TYPE_INT_RGB);
+    public void initOriginalShadowImageDimensions() {
+    	originalShadowImageWidth = originalShadowImage.getWidth();
+		originalShadowImageHeight = originalShadowImage.getHeight();
     }
+
 	
 	public Point2D.Double getXY() {
 		return currentPosition;
@@ -188,6 +265,25 @@ public class Player implements Sprite {
 	
 	public double getY() {
 		return currentPosition.y;
+	}
+	
+	public Point2D.Double getShadowXY() {
+		return new Point2D.Double(currentPosition.x, (currentPosition.y + (currentHeightDecimal * 100)));
+	}
+	
+	public double getShadowX() {
+		return currentPosition.x;
+	}
+	
+	public double getShadowY() {
+		return (currentPosition.y + (300 * (currentHeight - 1)));
+	}
+	
+	public boolean hasShadow() {
+		if(currentHeightDecimal > .1) {
+			return true;
+		}
+		return false;
 	}
 	
 	public int getHeight() {
