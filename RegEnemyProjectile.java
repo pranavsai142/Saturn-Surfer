@@ -26,9 +26,9 @@ public class RegEnemyProjectile implements Sprite {
 	boolean movingRight;
 	boolean movingBackward;
 
-	public RegEnemyProjectile(int x, int y) {
-		Enemy enemy = new Enemy(x, y);
-		currentPosition = enemy.getXY();
+	public RegEnemyProjectile(int x, int y, int h) {
+		currentPosition = new Point2D.Double(x, y);
+		currentHeight = h;
 		try {
 			image = ImageIO.read(new File(PROJECTILE_IMAGE));
 		} catch (IOException e) {
