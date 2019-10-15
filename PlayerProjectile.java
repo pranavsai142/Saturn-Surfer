@@ -10,13 +10,23 @@ import javax.imageio.ImageIO;
 
 public class PlayerProjectile implements Sprite {
 
-	private static final String PROJECTILE_IMAGE = "assets/DPRKmissle.png";
-
+	private static final String PROJECTILE_IMAGE = "assets/red_projectile.png";
+	private static final double ORIGINAL_TO_HEIGHT_0_SCALAR = .2;
+	private static final double ORIGINAL_TO_HEIGHT_1_SCALAR = .3;
+	private static final double ORIGINAL_TO_HEIGHT_2_SCALAR = .6;
+	private static final int TOP_LEFT_HEIGHT = 45;
+	private static final int BOTTOM_WIDTH = 18;
+	private static final int TOP_RIGHT_HEIGHT = 25;
+	private static final int TOP_WIDTH = 85;
+	
 	private BufferedImage image;
+	private BufferedImage originalImage;
 	private Point2D.Double currentPosition;
 	private int currentHeight;
 	private int imageWidth;
 	private int imageHeight;
+	private int originalImageWidth;
+	private int originalImageHeight;
 	private boolean movingForward;
 
 	//not called
@@ -24,21 +34,17 @@ public class PlayerProjectile implements Sprite {
 	boolean movingRight;
 	boolean movingBackward;
 
-	public PlayerProjectile(int x, int y) {
-		Player player = new Player(x, y);
-		currentPosition = player.getXY();
+	public PlayerProjectile(int x, int y, int h) {
+		currentPosition = new Point2D.Double(x, y);
+		currentHeight = h;
 		try {
-			image = ImageIO.read(new File(PROJECTILE_IMAGE));
+			originalImage = ImageIO.read(new File(PROJECTILE_IMAGE));
 		} catch (IOException e) {
 			System.out.println("ASSET LOADING PROBLEM");
 		}
+		initOriginalImageDimensions();
 
-		image = resize(image, 90, 90);
-
-		imageWidth = image.getWidth();
-		imageHeight = image.getHeight();
-
-		currentHeight = 0;
+		currentHeight = h;
 
 		movingForward = true;
 		movingLeft = false;
@@ -57,16 +63,53 @@ public class PlayerProjectile implements Sprite {
 		return scaled;
 	}
 
+	public void initImageDimensions() {
+    	imageWidth = image.getWidth();
+		imageHeight = image.getHeight();
+    }
+
+    public void initOriginalImageDimensions() {
+    	originalImageWidth = originalImage.getWidth();
+		originalImageHeight = originalImage.getHeight();
+    }
+    
 	public Shape getBoundingShape() {
 		Path2D.Double bound = new Path2D.Double();
-		bound.moveTo(currentPosition.getX(), currentPosition.getY() + ((int) imageHeight / 3));
-		bound.lineTo(currentPosition.getX() + ((2 * imageWidth) / 3), currentPosition.getY() + imageHeight);
-		bound.lineTo(currentPosition.getX() + imageWidth, currentPosition.getY());
-		bound.lineTo(currentPosition.getX(), currentPosition.getY() + ((int) imageHeight / 3));
+		if(currentHeight == 0) {
+			bound.moveTo(currentPosition.getX(),currentPosition.getY() + (TOP_LEFT_HEIGHT * ORIGINAL_TO_HEIGHT_0_SCALAR));
+			bound.lineTo(currentPosition.getX() + (BOTTOM_WIDTH * ORIGINAL_TO_HEIGHT_0_SCALAR), currentPosition.getY() + (originalImageHeight * ORIGINAL_TO_HEIGHT_0_SCALAR));
+			bound.lineTo(currentPosition.getX() + (originalImageWidth * ORIGINAL_TO_HEIGHT_0_SCALAR), currentPosition.getY() + (TOP_RIGHT_HEIGHT * ORIGINAL_TO_HEIGHT_0_SCALAR));
+			bound.lineTo(currentPosition.getX() + (TOP_WIDTH * ORIGINAL_TO_HEIGHT_0_SCALAR), currentPosition.getY());
+			bound.lineTo(currentPosition.getX(),currentPosition.getY() + (TOP_LEFT_HEIGHT * ORIGINAL_TO_HEIGHT_0_SCALAR));
+		}
+		else if(currentHeight == 1) {
+			bound.moveTo(currentPosition.getX(),currentPosition.getY() + (TOP_LEFT_HEIGHT * ORIGINAL_TO_HEIGHT_1_SCALAR));
+			bound.lineTo(currentPosition.getX() + (BOTTOM_WIDTH * ORIGINAL_TO_HEIGHT_1_SCALAR), currentPosition.getY() + (originalImageHeight * ORIGINAL_TO_HEIGHT_1_SCALAR));
+			bound.lineTo(currentPosition.getX() + (originalImageWidth * ORIGINAL_TO_HEIGHT_1_SCALAR), currentPosition.getY() + (TOP_RIGHT_HEIGHT * ORIGINAL_TO_HEIGHT_1_SCALAR));
+			bound.lineTo(currentPosition.getX() + (TOP_WIDTH * ORIGINAL_TO_HEIGHT_1_SCALAR), currentPosition.getY());
+			bound.lineTo(currentPosition.getX(),currentPosition.getY() + (TOP_LEFT_HEIGHT * ORIGINAL_TO_HEIGHT_1_SCALAR));
+		}
+		else if(currentHeight == 2) {
+			bound.moveTo(currentPosition.getX(),currentPosition.getY() + (TOP_LEFT_HEIGHT * ORIGINAL_TO_HEIGHT_2_SCALAR));
+			bound.lineTo(currentPosition.getX() + (BOTTOM_WIDTH * ORIGINAL_TO_HEIGHT_2_SCALAR), currentPosition.getY() + (originalImageHeight * ORIGINAL_TO_HEIGHT_2_SCALAR));
+			bound.lineTo(currentPosition.getX() + (originalImageWidth * ORIGINAL_TO_HEIGHT_2_SCALAR), currentPosition.getY() + (TOP_RIGHT_HEIGHT * ORIGINAL_TO_HEIGHT_2_SCALAR));
+			bound.lineTo(currentPosition.getX() + (TOP_WIDTH * ORIGINAL_TO_HEIGHT_2_SCALAR), currentPosition.getY());
+			bound.lineTo(currentPosition.getX(),currentPosition.getY() + (TOP_LEFT_HEIGHT * ORIGINAL_TO_HEIGHT_2_SCALAR));
+		}
 		return bound;
 	}
 
 	public Image getImage() {
+		if(currentHeight == 0) {
+			image = resize(originalImage, ((int)(originalImageWidth * ORIGINAL_TO_HEIGHT_0_SCALAR)), ((int)(originalImageHeight * ORIGINAL_TO_HEIGHT_0_SCALAR)));
+		}
+		if(currentHeight == 1) {
+			image = resize(originalImage, ((int)(originalImageWidth * ORIGINAL_TO_HEIGHT_1_SCALAR)), ((int)(originalImageHeight * ORIGINAL_TO_HEIGHT_1_SCALAR)));
+		}
+		if(currentHeight == 2) {
+			image = resize(originalImage, ((int)(originalImageWidth * ORIGINAL_TO_HEIGHT_2_SCALAR)), ((int)(originalImageHeight * ORIGINAL_TO_HEIGHT_2_SCALAR)));
+		}
+		initImageDimensions();
 		return image;
 	}
 
@@ -131,8 +174,6 @@ public class PlayerProjectile implements Sprite {
 		}
 	}
 
-	public void shoot() {
-	}
 
 	public boolean isColliding() {
 		return false;

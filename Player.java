@@ -8,7 +8,7 @@ import javax.imageio.*;
 
 public class Player implements Sprite {
 
-	String PLAYER_IMAGE = "assets/player.png";
+	String PLAYER_IMAGE = "assets/playerColor.png";
 	String PLAYER_SHADOW_IMAGE = "assets/player_shadow.png";
 	int SCALE_UP = 1;
 	int STOP_SCALE_UP = 200;
@@ -128,15 +128,15 @@ public class Player implements Sprite {
 	
 	public Image getImage() {
 		if(scaling == STOP_SCALE_UP || scaling == STOP_SCALE_DOWN) {
-			System.out.println("DONE");
+// 			System.out.println("DONE");
 			scaling = NOT_SCALING;
 		}
 		if(scaling > NOT_SCALING) {
-			System.out.println("attempting scale up");
+// 			System.out.println("attempting scale up");
 			scaleImageUp();
 		}
 		else if(scaling < NOT_SCALING) {
-			System.out.println("attempting scale down");
+// 			System.out.println("attempting scale down");
 			scaleImageDown();
 		}
 		return image;
@@ -144,11 +144,11 @@ public class Player implements Sprite {
 	
 	public Image getShadowImage() {
 		if(scaling > NOT_SCALING) {
-			System.out.println("attempting to scale shadow up");
+// 			System.out.println("attempting to scale shadow up");
 			scaleShadowUp();
 		}
 		else if(scaling < NOT_SCALING) {
-			System.out.println("attempting to scale shadow down");
+// 			System.out.println("attempting to scale shadow down");
 			scaleShadowDown();
 		}
 		return shadowImage;
@@ -180,7 +180,7 @@ public class Player implements Sprite {
 	public void scaleImageDown() {
 		double scalar;
 		if(currentHeight == 1) {
-			System.out.println("YIIIPPPE");
+// 			System.out.println("YIIIPPPE");
 			scalar = (ORIGINAL_TO_HEIGHT_2_SCALAR * Math.pow((1/SCALAR_MULTIPLE), -scaling));
 		}
 		else {
@@ -276,7 +276,7 @@ public class Player implements Sprite {
 	}
 	
 	public double getShadowY() {
-		return (currentPosition.y + (300 * (currentHeight - 1)));
+		return (currentPosition.y + (currentPosition.y + (currentHeightDecimal * 100)));
 	}
 	
 	public boolean hasShadow() {
@@ -346,7 +346,7 @@ public class Player implements Sprite {
 	}
 	
 	public void shoot() {
-		projectiles.add(new PlayerProjectile((int)currentPosition.getX() + 190, (int)currentPosition.getY() - 65));
+		projectiles.add(new PlayerProjectile((int)(currentPosition.getX() + imageWidth - (10 * currentHeight * 5)), (int)(currentPosition.getY()), currentHeight));
 		//System.out.println(projectiles.size());
 	}
 
@@ -404,4 +404,12 @@ public class Player implements Sprite {
 		}
 	}
 	
+<<<<<<< Updated upstream
 }
+=======
+	public void removeProjectile(int i) {
+		projectiles.remove(i);
+	}
+
+}
+>>>>>>> Stashed changes

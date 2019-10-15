@@ -10,22 +10,57 @@ import java.util.List;
 
 public class Game extends JPanel implements KeyListener, ActionListener {
 
+<<<<<<< Updated upstream
 	private static final String BACKGROUND_IMAGE = "assets/background2.png";
+=======
+	private static final String BACKGROUND_IMAGE = "assets/backgroundSaturn.png";
+	private static final String BACKGROUND_IMAGE_PLAYING = "assets/backgroundTransparent.png";
+	private static final String SATURN_IMAGE = "assets/saturn.png";
+	private static final String START_IMAGE = "assets/start_screen.png";
+	private static final String EXPOSITION_IMAGE = "assets/exposition.png";
+	private static final String GAME_OVER_IMAGE = "assets/game_over.png";
+	
+	private static final String HEART_IMAGE = "assets/heart.png";
+>>>>>>> Stashed changes
 	private static final int PANEL_WIDTH = 800;
 	private static final int PANEL_HEIGHT = 800;
 	private static final int BACKGROUND_DELAY = 30;
 	private static final int SPRITE_DELAY = 10;
+<<<<<<< Updated upstream
 	private static final int MILLESECONDS_BETWEEN_LEVEL = 1666;
 	private static final long coolDownTime = 700;
 
 	private BufferedImage fullBackground;
+=======
+	private static final int MILLESECONDS_BETWEEN_LEVEL = 400;
+	private static final long ROFcoolDownTime = 700;
+	private static final long DamageCoolDownTime = 3000;
+	private static final int GAME_OVER = 3;
+	private static final int PLAY = 2;
+	private static final int EXPOSITION = 1;
+	private static final int START = 0;
+
+	private BufferedImage fullBackground;
+	private BufferedImage fullBackgroundPlaying;
+	private BufferedImage saturnImage;
+	private BufferedImage startImage;
+	private BufferedImage expositionImage;
+	private BufferedImage gameOverImage;
+>>>>>>> Stashed changes
 	private BufferedImage background;
 	private Point2D.Double offset;
 	private Player player;
 	private Timer backgroundTime;
 	private Timer spriteTime;
 	private int spriteCounter;
+<<<<<<< Updated upstream
 	private long lastAttack = 0;
+=======
+	private long lastAttack;
+	private int hits;
+	
+	private int mode;
+>>>>>>> Stashed changes
 
 	private ArrayList<Enemy> enemies;
 
@@ -33,13 +68,41 @@ public class Game extends JPanel implements KeyListener, ActionListener {
 
 	public Game() {
 		try {
+<<<<<<< Updated upstream
     		fullBackground = ImageIO.read(new File(BACKGROUND_IMAGE));
+=======
+			fullBackground = ImageIO.read(new File(BACKGROUND_IMAGE));
+			fullBackgroundPlaying = ImageIO.read(new File(BACKGROUND_IMAGE_PLAYING));
+			saturnImage = ImageIO.read(new File(SATURN_IMAGE));
+			startImage = ImageIO.read(new File(START_IMAGE));
+			expositionImage = ImageIO.read(new File(EXPOSITION_IMAGE));
+			gameOverImage = ImageIO.read(new File(GAME_OVER_IMAGE));
+			heart1 = ImageIO.read(new File(HEART_IMAGE));
+			heart1 = resize(heart1, 70, 70);
+			heart2 = resize(heart1, 70, 70);
+			heart3 = resize(heart1, 70, 70);
+>>>>>>> Stashed changes
 		} catch (IOException e) {
 			System.out.println("ASSET LOADING PROBLEM");
 		}
 		
+<<<<<<< Updated upstream
 		spriteCounter = 0;
 		
+=======
+
+		hearts.add(heart1);
+		hearts.add(heart2);
+		hearts.add(heart3);
+
+		hits = 0;
+		lastAttack = 0;
+		
+		spriteCounter = 0;
+		
+		mode = 0;
+
+>>>>>>> Stashed changes
 		background = new BufferedImage(PANEL_WIDTH, PANEL_HEIGHT, BufferedImage.TYPE_INT_ARGB);
 		
 		offset = new Point2D.Double(0, (fullBackground.getHeight() - PANEL_HEIGHT) * -1.0);
@@ -58,13 +121,48 @@ public class Game extends JPanel implements KeyListener, ActionListener {
 		
 		spriteTime = new Timer(SPRITE_DELAY, this);
 		spriteTime.setActionCommand("SPRITE_TIMER");
-		spriteTime.start();
+	}
+	
+	public void reInitGame() {
+		hearts.add(heart1);
+		hearts.add(heart2);
+		hearts.add(heart3);
+		spriteCounter = 0;
+		
+		hits = 0;
+		
+		lastAttack = 0;
+		
+		mode = 0;
+
+		background = new BufferedImage(PANEL_WIDTH, PANEL_HEIGHT, BufferedImage.TYPE_INT_ARGB);
+
+		offset = new Point2D.Double(0, (fullBackground.getHeight() - PANEL_HEIGHT) * -1.0);
+		player = new Player(200, 400);
+
+		enemies = new ArrayList<Enemy>();
+		backgroundTime = new Timer(BACKGROUND_DELAY, this);
+		backgroundTime.setActionCommand("BACKGROUND_TIMER");
+		backgroundTime.start();
+
+		spriteTime = new Timer(SPRITE_DELAY, this);
+		spriteTime.setActionCommand("SPRITE_TIMER");
 	}
 	
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		Graphics2D g2d = (Graphics2D) g;
+		
+		if(mode == START) {
+			g2d.drawImage(background, 0, 0, this);
+			g2d.drawImage(startImage, 0, 0, this);
+		}
+		
+		if(mode == EXPOSITION) {
+			g2d.drawImage(expositionImage, 0, 0, this);
+		}	
 
+<<<<<<< Updated upstream
 
 		
 		
@@ -84,6 +182,26 @@ public class Game extends JPanel implements KeyListener, ActionListener {
 		List<PlayerProjectile> projectiles = player.getProjectiles();
 
 		for (PlayerProjectile projectile : projectiles) {
+=======
+		if(mode == PLAY || mode == GAME_OVER) {
+			g2d.drawImage(saturnImage, 0, 0, this);
+			g2d.drawImage(background, 0, 0, this);
+
+
+			// draw heart(s)
+			int x = 0;
+			for (BufferedImage heart : hearts) {
+				g2d.drawImage(heart, x, 0, this);
+				x += 70;
+			}
+
+
+			// draw player projectiles
+			List<PlayerProjectile> projectiles = player.getProjectiles();
+			for (PlayerProjectile projectile : projectiles) {
+				g2d.drawImage(projectile.getImage(), ((int) projectile.getX()), ((int) projectile.getY()), this);
+			}
+>>>>>>> Stashed changes
 
 			g2d.drawImage(projectile.getImage(), ((int) projectile.getX()), ((int) projectile.getY()), this);
 		}
@@ -96,17 +214,42 @@ public class Game extends JPanel implements KeyListener, ActionListener {
 // 			lifeCrystalImages.add(lifeCrystal.getImage());
 // 		}
 
-		if(player.hasShadow()) {
-			Point2D.Double shadowXY = player.getShadowXY();
-			g2d.drawImage(player.getShadowImage(), ((int) shadowXY.getX()), ((int) shadowXY.getY()), this);
+			if(player.hasShadow()) {
+				Point2D.Double shadowXY = player.getShadowXY();
+				g2d.drawImage(player.getShadowImage(), ((int) shadowXY.getX()), ((int) shadowXY.getY()), this);
+			}
+	
+			g2d.drawImage(player.getImage(), ((int) player.getX()), ((int) player.getY()), this);
+			
+			// draw enemies and enemy projectiles
+			for (Enemy enemy : enemies) {
+				List<RegEnemyProjectile> regEnemyProjectiles = enemy.getProjectiles();
+				if(enemy.hasShadow()) {
+					Point2D.Double shadowXY = enemy.getShadowXY();
+					g2d.drawImage(enemy.getShadowImage(), ((int) shadowXY.getX()), ((int) shadowXY.getY()), this);
+				}
+				g2d.drawImage(enemy.getImage(), ((int) enemy.getX()), ((int) enemy.getY()), this);
+				for (RegEnemyProjectile regEnemyProjectile : regEnemyProjectiles) {
+					g2d.drawImage(regEnemyProjectile.getImage(), ((int) regEnemyProjectile.getX()),
+							((int) regEnemyProjectile.getY()), this);
+				}
+			}
+		
+			if (mode == GAME_OVER) {
+				g2d.drawImage(gameOverImage, 0, 0, this);
+			}
 		}
+<<<<<<< Updated upstream
 		
 		g2d.drawImage(player.getImage(), ((int) player.getX()), ((int) player.getY()), this);
+=======
+>>>>>>> Stashed changes
 	}
 	
 			
 	public void recalculateBackground() {
 		Graphics g = background.getGraphics();
+<<<<<<< Updated upstream
 		g.drawImage(fullBackground, ((int) offset.getX()), ((int) offset.getY()), null);
 		offset = new Point2D.Double(offset.getX() - 2, offset.getY() + 1);
 		// repeat image
@@ -115,6 +258,21 @@ public class Game extends JPanel implements KeyListener, ActionListener {
 		}
 //		System.out.println("X: " + offset.getX());
 //		System.out.println("Y: " + offset.getY());
+=======
+		//if (draw) {
+			if(mode == PLAY) {
+				g.drawImage(fullBackgroundPlaying, ((int) offset.getX()), ((int) offset.getY()), this);
+			}
+			else {
+				g.drawImage(fullBackground, ((int) offset.getX()), ((int) offset.getY()), this);
+			}
+			offset = new Point2D.Double(offset.getX() - 2, offset.getY() + 1);
+			// repeat image
+			if (offset.getX() <= -1220.0) {
+				offset = new Point2D.Double(-696, -352);
+			}
+		//}
+>>>>>>> Stashed changes
 	}
 		
 		
@@ -135,7 +293,9 @@ public class Game extends JPanel implements KeyListener, ActionListener {
 
 	public void manageEnemies() {
 		if (spriteCounter % MILLESECONDS_BETWEEN_LEVEL == 0) {
-			Enemy enemy = new Enemy(800, 200);
+			int height = (int) (Math.random() * 3);
+			int y = (int) (Math.random() * 170);
+			Enemy enemy = new Enemy(850, y, height);
 			enemy.movingBackward(true);
 			enemies.add(enemy);
 		}
@@ -207,11 +367,63 @@ public class Game extends JPanel implements KeyListener, ActionListener {
 			player.collidingLeft(false);
 			player.collidingRight(false);
 		}
+<<<<<<< Updated upstream
 		
 		if(playerIntersectingEnemy() || playerIntersectingProjectile()) {
 			player.loseLife();
 		}	
 // 		
+=======
+
+		if (playerIntersectingEnemy() || playerIntersectingProjectile()) {
+			long time = System.currentTimeMillis();
+			if (time > lastAttack + DamageCoolDownTime) {
+				hits++;
+				heartCounter();
+				player.loseLife();
+				lastAttack = time;
+			}
+		}
+		List<PlayerProjectile> projectiles = player.getProjectiles();
+		for (int i = 0; i < projectiles.size(); i++) {
+			PlayerProjectile projectile = projectiles.get(i);
+			for(int j = 0; j < enemies.size(); j++) {
+				Enemy enemy = enemies.get(j);
+				if(projectile.getHeight() == enemy.getHeight()) {
+					Shape projectileBound = projectile.getBoundingShape();
+					Shape enemyBound = enemy.getBoundingShape();
+					if(intersects(projectileBound, enemyBound)) {
+						player.removeProjectile(i);
+						enemies.remove(j);
+// 						System.out.println("HIT HIT HIT");
+					}
+				}
+			}
+		}
+		
+	}
+
+	// for visualizing amount of lives left
+	public void heartCounter() {
+
+		if (hits == 1) {
+			hearts.remove(2);
+		} else if (hits == 2) {
+			hearts.remove(1);
+		} else if (hits == 3) {
+			hearts.remove(0);
+			gameOver();
+		}
+	}
+
+	public void gameOver() {
+		backgroundTime.stop();
+		spriteTime.stop();
+		mode = GAME_OVER;
+	}
+
+//
+>>>>>>> Stashed changes
 // 		ArrayList<Enemy> destroyedEnemies = getDestroyedEnemies();
 // 		if(destroyedEnemies.size() == 0) {
 // 			
@@ -276,7 +488,7 @@ public class Game extends JPanel implements KeyListener, ActionListener {
 	}
 	
 	public void keyPressed(KeyEvent e) {
-		System.out.println("KEY PRESSED");
+// 		System.out.println("KEY PRESSED");
 		int id = e.getKeyCode();
 		if(id == 87) {
 			player.movingForward(true);
@@ -298,11 +510,36 @@ public class Game extends JPanel implements KeyListener, ActionListener {
 		}
 		if (id == 32) {
 			// limit rate of fire
+<<<<<<< Updated upstream
 			long time = System.currentTimeMillis();
 			if (time > lastAttack + coolDownTime) {
 				player.shoot();
 				for (Enemy enemy : enemies) {
 					enemy.shoot();
+=======
+		long time = System.currentTimeMillis();
+			if (time > lastAttack + ROFcoolDownTime) {
+				if(mode == START) {
+					mode = EXPOSITION;
+					backgroundTime.stop();
+					repaint();
+				}
+				else if(mode == EXPOSITION) {
+					offset = new Point2D.Double(0, (fullBackground.getHeight() - PANEL_HEIGHT) * -1.0);
+					mode = PLAY;
+					backgroundTime.start();
+					spriteTime.start();
+				}
+				else if(mode == PLAY) {
+					player.shoot();
+					for (Enemy enemy : enemies) {
+						enemy.shoot();
+					}
+				}
+				else if(mode == GAME_OVER) {
+					reInitGame();
+					recalculateBackground();
+>>>>>>> Stashed changes
 				}
 				lastAttack = time;
 			}
