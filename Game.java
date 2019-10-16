@@ -30,7 +30,11 @@ public class Game extends JPanel implements KeyListener, ActionListener {
 	private static final int EXPOSITION = 1;
 	private static final int START = 0;
 	
+<<<<<<< Updated upstream
 
+=======
+	public static String myname;
+>>>>>>> Stashed changes
 	private BufferedImage fullBackground;
 	private BufferedImage fullBackgroundPlaying;
 	private BufferedImage saturnImage;
@@ -48,6 +52,7 @@ public class Game extends JPanel implements KeyListener, ActionListener {
 	private int spriteCounter;
 	private long lastAttack;
 	private int hits;
+<<<<<<< Updated upstream
 	ArrayList<Image> height0ImageList;
 	ArrayList<Point2D.Double> height0PointList;
 			
@@ -56,6 +61,9 @@ public class Game extends JPanel implements KeyListener, ActionListener {
 			
 	ArrayList<Image> height2ImageList;
 	ArrayList<Point2D.Double> height2PointList;
+=======
+	private int score = 0;
+>>>>>>> Stashed changes
 	
 	private int mode;
 
@@ -197,6 +205,15 @@ public class Game extends JPanel implements KeyListener, ActionListener {
 				addToHeightList(img, p, height);
 			}
 
+<<<<<<< Updated upstream
+=======
+			if(player.hasShadow()) {
+				Point2D.Double shadowXY = player.getShadowXY();
+				g2d.drawImage(player.getShadowImage(), ((int) shadowXY.getX()), ((int) shadowXY.getY()), this);
+			}
+	
+			g2d.drawImage(player.getImage(), ((int) player.getX()), ((int) player.getY()), this);
+>>>>>>> Stashed changes
 			
 			// draw enemies and enemy projectiles
 			for (Enemy enemy : enemies) {
@@ -205,12 +222,17 @@ public class Game extends JPanel implements KeyListener, ActionListener {
 					Point2D.Double shadowXY = enemy.getShadowXY();
 					addToHeightList(enemy.getShadowImage(), shadowXY, enemy.getHeight());
 				}
+<<<<<<< Updated upstream
 				addToHeightList(enemy.getImage(), enemy.getXY(), enemy.getHeight());
+=======
+				g2d.drawImage(enemy.getImage(), ((int) enemy.getX()), ((int) enemy.getY()), this);
+>>>>>>> Stashed changes
 				for (RegEnemyProjectile regEnemyProjectile : regEnemyProjectiles) {
 					addToHeightList(regEnemyProjectile.getImage(), regEnemyProjectile.getXY(), regEnemyProjectile.getHeight());
 				}
 			}
 			
+<<<<<<< Updated upstream
 			if(player.hasShadow()) {
 				Point2D.Double shadowXY = player.getShadowXY();
 				Image img = player.getShadowImage();
@@ -237,6 +259,12 @@ public class Game extends JPanel implements KeyListener, ActionListener {
 				Point2D.Double p = height2PointList.get(i);
 				g2d.drawImage(img, ((int) p.getX()), ((int) p.getY()), this);
 			}
+=======
+			g2d.setFont(new Font("Arial", Font.PLAIN, 60));
+			g2d.setColor(Color.WHITE);
+			g2d.drawString("Score: " + getScore(), 300, 60);
+			
+>>>>>>> Stashed changes
 		
 			if (mode == GAME_OVER) {
 				g2d.drawImage(gameOverImage, 0, 0, this);
@@ -244,6 +272,7 @@ public class Game extends JPanel implements KeyListener, ActionListener {
 		}
 	}
 
+<<<<<<< Updated upstream
 	public void addToHeightList(Image img, Point2D.Double p, int h) {
 		if(h == 0) {
 			height0ImageList.add(img);
@@ -257,8 +286,14 @@ public class Game extends JPanel implements KeyListener, ActionListener {
 			height2ImageList.add(img);
 			height2PointList.add(p);
 		}
+=======
+	public String getScore() {
+		String points = Integer.toString(score);
+		//System.out.println(score);
+		return points;
+>>>>>>> Stashed changes
 	}
-
+	
 	public void recalculateBackground() {
 		AlphaComposite ac = AlphaComposite.getInstance(AlphaComposite.SRC_OVER);
 		Graphics g = background.getGraphics();
@@ -359,7 +394,6 @@ public class Game extends JPanel implements KeyListener, ActionListener {
 			player.movingRight(false);
 			intersect = true;
 		} else if (playerIntersectsLeftBound()) {
-// 			System.out.println("leftleftleftleft");
 			player.collidingLeft(true);
 			player.movingBackward(false);
 			intersect = true;
@@ -394,7 +428,10 @@ public class Game extends JPanel implements KeyListener, ActionListener {
 					if(intersects(projectileBound, enemyBound)) {
 						player.removeProjectile(i);
 						enemies.remove(j);
+<<<<<<< Updated upstream
 // 						System.out.println("HIT HIT HIT");
+=======
+>>>>>>> Stashed changes
 					}
 				}
 			}
@@ -418,6 +455,24 @@ public class Game extends JPanel implements KeyListener, ActionListener {
 	public void gameOver() {
 		backgroundTime.stop();
 		spriteTime.stop();
+		
+		String name = JOptionPane.showInputDialog(null, "Name: ","Enter name for leaderboard", 
+				JOptionPane.PLAIN_MESSAGE);
+		if (name.equals("")) {
+			myname = "Anonymous";
+			HighscoreManager hm = new HighscoreManager();
+			hm.addScore(getmyName(), getPoints());
+		}
+
+		else {
+			myname = name;
+			HighscoreManager hm = new HighscoreManager();
+			hm.addScore(getmyName(), getPoints());
+		}
+		
+		HighscoreManager hm = new HighscoreManager();
+		JOptionPane.showMessageDialog(null, hm.getHighscoreString(),"Top Ten Scores", 
+				JOptionPane.INFORMATION_MESSAGE);
 		mode = GAME_OVER;
 	}
 
@@ -537,6 +592,14 @@ public class Game extends JPanel implements KeyListener, ActionListener {
 				lastAttack = time;
 			}
 		}
+	}
+	
+	public int getPoints() {
+		return score;
+	}
+
+	public String getmyName() {
+		return myname;
 	}
 
 	public void keyReleased(KeyEvent e) {
