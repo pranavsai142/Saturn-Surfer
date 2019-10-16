@@ -48,6 +48,14 @@ public class Game extends JPanel implements KeyListener, ActionListener {
 	private int spriteCounter;
 	private long lastAttack;
 	private int hits;
+	ArrayList<Image> height0ImageList;
+	ArrayList<Point2D.Double> height0PointList;
+			
+	ArrayList<Image> height1ImageList;
+	ArrayList<Point2D.Double> height1PointList;
+			
+	ArrayList<Image> height2ImageList;
+	ArrayList<Point2D.Double> height2PointList;
 	
 	private int mode;
 
@@ -91,6 +99,8 @@ public class Game extends JPanel implements KeyListener, ActionListener {
 
 		addKeyListener(this);
 
+		initHeightLists();
+		
 		player = new Player(200, 400);
 
 		enemies = new ArrayList<Enemy>();
@@ -130,6 +140,18 @@ public class Game extends JPanel implements KeyListener, ActionListener {
 		spriteTime.setActionCommand("SPRITE_TIMER");
 	}
 
+
+	public void initHeightLists() {
+		height0ImageList = new ArrayList<Image>();
+		height0PointList = new ArrayList<Point2D.Double>();
+			
+		height1ImageList = new ArrayList<Image>();
+		height1PointList = new ArrayList<Point2D.Double>();
+			
+		height2ImageList = new ArrayList<Image>();
+		height2PointList = new ArrayList<Point2D.Double>();
+	}
+	
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		Graphics2D g2d = (Graphics2D) g;
@@ -158,43 +180,82 @@ public class Game extends JPanel implements KeyListener, ActionListener {
 			}
 
 
+			//Shadows
+			//projectiles
+			//Player
+			//Enemy
+			
+			
+			initHeightLists();
+			
 			// draw player projectiles
 			List<PlayerProjectile> projectiles = player.getProjectiles();
 			for (PlayerProjectile projectile : projectiles) {
-				g2d.drawImage(projectile.getImage(), ((int) projectile.getX()), ((int) projectile.getY()), this);
+				int height = projectile.getHeight();
+				Image img = projectile.getImage();
+				Point2D.Double p = projectile.getXY();
+				addToHeightList(img, p, height);
 			}
 
-//
-// 		ArrayList<Image> lifeCrystalImages = new ArrayList<Image>();
-// 		ArrayList<Shape> lifeCrystalBoundingShapes = new ArrayList<Image>();
-// 		for(LifeCrystal lifeCrystal: lifeCrystals) {
-// 			lifeCrystalImages.add(lifeCrystal.getImage());
-// 		}
-
-			if(player.hasShadow()) {
-				Point2D.Double shadowXY = player.getShadowXY();
-				g2d.drawImage(player.getShadowImage(), ((int) shadowXY.getX()), ((int) shadowXY.getY()), this);
-			}
-	
-			g2d.drawImage(player.getImage(), ((int) player.getX()), ((int) player.getY()), this);
 			
 			// draw enemies and enemy projectiles
 			for (Enemy enemy : enemies) {
 				List<RegEnemyProjectile> regEnemyProjectiles = enemy.getProjectiles();
 				if(enemy.hasShadow()) {
 					Point2D.Double shadowXY = enemy.getShadowXY();
-					g2d.drawImage(enemy.getShadowImage(), ((int) shadowXY.getX()), ((int) shadowXY.getY()), this);
+					addToHeightList(enemy.getShadowImage(), shadowXY, enemy.getHeight());
 				}
-				g2d.drawImage(enemy.getImage(), ((int) enemy.getX()), ((int) enemy.getY()), this);
+				addToHeightList(enemy.getImage(), enemy.getXY(), enemy.getHeight());
 				for (RegEnemyProjectile regEnemyProjectile : regEnemyProjectiles) {
-					g2d.drawImage(regEnemyProjectile.getImage(), ((int) regEnemyProjectile.getX()),
-							((int) regEnemyProjectile.getY()), this);
+					addToHeightList(regEnemyProjectile.getImage(), regEnemyProjectile.getXY(), regEnemyProjectile.getHeight());
 				}
+			}
+			
+			if(player.hasShadow()) {
+				Point2D.Double shadowXY = player.getShadowXY();
+				Image img = player.getShadowImage();
+				addToHeightList(img, shadowXY, player.getHeight());
+			}
+	
+			
+			addToHeightList(player.getImage(), player.getXY(), player.getHeight());
+			
+			for(int i = 0; i < height0ImageList.size(); i++) {
+				Image img = height0ImageList.get(i);
+				Point2D.Double p = height0PointList.get(i);
+				g2d.drawImage(img, ((int) p.getX()), ((int) p.getY()), this);
+			}
+			
+			for(int i = 0; i < height1ImageList.size(); i++) {
+				Image img = height1ImageList.get(i);
+				Point2D.Double p = height1PointList.get(i);
+				g2d.drawImage(img, ((int) p.getX()), ((int) p.getY()), this);
+			}
+			
+			for(int i = 0; i < height2ImageList.size(); i++) {
+				Image img = height2ImageList.get(i);
+				Point2D.Double p = height2PointList.get(i);
+				g2d.drawImage(img, ((int) p.getX()), ((int) p.getY()), this);
 			}
 		
 			if (mode == GAME_OVER) {
 				g2d.drawImage(gameOverImage, 0, 0, this);
 			}
+		}
+	}
+
+	public void addToHeightList(Image img, Point2D.Double p, int h) {
+		if(h == 0) {
+			height0ImageList.add(img);
+			height0PointList.add(p);
+		}
+		else if (h == 1) {
+			height1ImageList.add(img);
+			height1PointList.add(p);
+		}
+		else {
+			height2ImageList.add(img);
+			height2PointList.add(p);
 		}
 	}
 
