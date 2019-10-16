@@ -1,4 +1,5 @@
 import javax.swing.*;
+
 import java.awt.event.*;
 import java.awt.*;
 import java.awt.image.*;
@@ -22,7 +23,7 @@ public class Game extends JPanel implements KeyListener, ActionListener {
 	private static final int PANEL_HEIGHT = 800;
 	private static final int BACKGROUND_DELAY = 30;
 	private static final int SPRITE_DELAY = 10;
-	private static final int MILLESECONDS_BETWEEN_LEVEL = 700;
+	private static  int MILLESECONDS_BETWEEN_LEVEL = 700;
 	private static final long ROFcoolDownTime = 700;
 	private static final long DamageCoolDownTime = 3000;
 	private static final int GAME_OVER = 3;
@@ -47,10 +48,14 @@ public class Game extends JPanel implements KeyListener, ActionListener {
 	private int spriteCounter;
 	private long lastAttack;
 	private int hits;
+	private int strafeHeight;
+	private int score = 0;
+	int leftRight = 0;
 	
 	private int mode;
 
 	private ArrayList<Enemy> enemies;
+	private ArrayList<StrafeEnemy> strafeenemies;
 	private List<BufferedImage> hearts = new ArrayList<>();
 
 // 	ArrayList<LifeCrystal> lifeCrystals;
@@ -71,7 +76,6 @@ public class Game extends JPanel implements KeyListener, ActionListener {
 			System.out.println("ASSET LOADING PROBLEM");
 		}
 		
-
 		hearts.add(heart1);
 		hearts.add(heart2);
 		hearts.add(heart3);
@@ -93,6 +97,7 @@ public class Game extends JPanel implements KeyListener, ActionListener {
 		player = new Player(200, 400);
 
 		enemies = new ArrayList<Enemy>();
+		strafeenemies = new ArrayList<StrafeEnemy>();
 // 		lifeCrystals = new ArrayList<lifeCrystals>();
 
 		backgroundTime = new Timer(BACKGROUND_DELAY, this);
@@ -146,7 +151,6 @@ public class Game extends JPanel implements KeyListener, ActionListener {
 			g2d.drawImage(saturnImage, 0, 0, this);
 			g2d.drawImage(background, 0, 0, this);
 
-
 			// draw heart(s)
 			int x = 5;
 			for (BufferedImage heart : hearts) {
@@ -175,24 +179,43 @@ public class Game extends JPanel implements KeyListener, ActionListener {
 	
 			g2d.drawImage(player.getImage(), ((int) player.getX()), ((int) player.getY()), this);
 			
-			// draw enemies and enemy projectiles
+			// draw enemies
 			for (Enemy enemy : enemies) {
-				List<RegEnemyProjectile> regEnemyProjectiles = enemy.getProjectiles();
 				if(enemy.hasShadow()) {
 					Point2D.Double shadowXY = enemy.getShadowXY();
 					g2d.drawImage(enemy.getShadowImage(), ((int) shadowXY.getX()), ((int) shadowXY.getY()), this);
 				}
 				g2d.drawImage(enemy.getImage(), ((int) enemy.getX()), ((int) enemy.getY()), this);
+			}
+			
+			//draw strafing enemies and their projectiles
+			for (StrafeEnemy strafeenemy : strafeenemies) {
+				List<RegEnemyProjectile> regEnemyProjectiles = strafeenemy.getProjectiles();
+				if(strafeenemy.hasShadow()) {
+					Point2D.Double shadowXY = strafeenemy.getShadowXY();
+					g2d.drawImage(strafeenemy.getShadowImage(), ((int) shadowXY.getX()), ((int) shadowXY.getY()), this);
+				}
+				g2d.drawImage(strafeenemy.getImage(), ((int) strafeenemy.getX()), ((int) strafeenemy.getY()), this);
 				for (RegEnemyProjectile regEnemyProjectile : regEnemyProjectiles) {
 					g2d.drawImage(regEnemyProjectile.getImage(), ((int) regEnemyProjectile.getX()),
 							((int) regEnemyProjectile.getY()), this);
 				}
 			}
+			
+			g2d.setFont(new Font("TimesRoman", Font.PLAIN, 30));
+			g2d.setColor(Color.WHITE);
+			g2d.drawString(getScore(), 800, 0);
 		
 			if (mode == GAME_OVER) {
 				g2d.drawImage(gameOverImage, 0, 0, this);
 			}
 		}
+	}
+	
+	public String getScore() {
+		String points = Integer.toString(score);
+		//System.out.println(score);
+		return points;
 	}
 
 	public void recalculateBackground() {
@@ -224,15 +247,41 @@ public class Game extends JPanel implements KeyListener, ActionListener {
 				enemy.move();
 			}
 		}
+		for (StrafeEnemy strafeenemy : strafeenemies) {
+			if (strafeenemy.isMoving() == true) {
+				if(strafeenemy.getX() >= 600) {
+					strafeenemy.movingBackward(true);
+				}
+				if(strafeenemy.getX() <= 599) {
+					strafeenemy.movingBackward(false);
+				}
+				if(leftRight % 2 == 0) {
+					leftRight++;
+					strafeenemy.movingRight(true);
+					strafeenemy.movingLeft(false);
+				}
+				leftRight--;
+				strafeenemy.movingLeft(true);
+				strafeenemy.movingRight(false);
+			}
+		}
 	}
 
 	public void manageEnemies() {
 		if (spriteCounter % MILLESECONDS_BETWEEN_LEVEL == 0) {
+			MILLESECONDS_BETWEEN_LEVEL--;
 			int height = (int) (Math.random() * 3);
 			int y = (int) (Math.random() * 170);
 			Enemy enemy = new Enemy(850, y, height);
 			enemy.movingBackward(true);
 			enemies.add(enemy);
+			
+			strafeHeight = (int) (Math.random() * 3);
+			int strafeY = (int) (Math.random() * 170);
+			StrafeEnemy strafeenemy = new StrafeEnemy(750, strafeY, strafeHeight);
+			//
+				strafeenemies.add(strafeenemy);
+			///}
 		}
 		// remove enemies off screen
 		for (int i = 0; i < enemies.size(); i++) {
@@ -241,6 +290,16 @@ public class Game extends JPanel implements KeyListener, ActionListener {
 				enemies.remove(i);
 			}
 		}
+		for (int i = 0; i < strafeenemies.size(); i++) {
+			StrafeEnemy e = strafeenemies.get(i);
+			if (e.getX() <= -200) {
+				strafeenemies.remove(i);
+			}
+		}
+	}
+	
+	public int getStrafeHeight() {
+		return strafeHeight;
 	}
 
 	private void updateProjectiles() {
@@ -257,7 +316,7 @@ public class Game extends JPanel implements KeyListener, ActionListener {
 			}
 		}
 
-		for (Enemy enemy : enemies) {
+		for (StrafeEnemy enemy : strafeenemies) {
 			List<RegEnemyProjectile> regEnemyProjectiles = enemy.getProjectiles();
 			for (int i = 0; i < regEnemyProjectiles.size(); i++) {
 				RegEnemyProjectile regEnemyProjectile = regEnemyProjectiles.get(i);
@@ -308,6 +367,7 @@ public class Game extends JPanel implements KeyListener, ActionListener {
 				lastAttack = time;
 			}
 		}
+		
 		List<PlayerProjectile> projectiles = player.getProjectiles();
 		for (int i = 0; i < projectiles.size(); i++) {
 			PlayerProjectile projectile = projectiles.get(i);
@@ -317,8 +377,22 @@ public class Game extends JPanel implements KeyListener, ActionListener {
 					Shape projectileBound = projectile.getBoundingShape();
 					Shape enemyBound = enemy.getBoundingShape();
 					if(intersects(projectileBound, enemyBound)) {
+						score++;
 						player.removeProjectile(i);
 						enemies.remove(j);
+// 						System.out.println("HIT HIT HIT");
+					}
+				}
+			}
+			for(int k = 0; k < strafeenemies.size(); k++) {
+				StrafeEnemy strafeenemy = strafeenemies.get(k);
+				if(projectile.getHeight() == strafeenemy.getHeight()) {
+					Shape projectileBound = projectile.getBoundingShape();
+					Shape strafeEnemyBound = strafeenemy.getBoundingShape();
+					if(intersects(projectileBound, strafeEnemyBound)) {
+						score++;
+						player.removeProjectile(i);
+						strafeenemies.remove(k);
 // 						System.out.println("HIT HIT HIT");
 					}
 				}
@@ -329,7 +403,6 @@ public class Game extends JPanel implements KeyListener, ActionListener {
 
 	// for visualizing amount of lives left
 	public void heartCounter() {
-
 		if (hits == 1) {
 			hearts.remove(2);
 		} else if (hits == 2) {
@@ -369,6 +442,24 @@ public class Game extends JPanel implements KeyListener, ActionListener {
 		}
 		return false;
 	}
+	
+	public boolean enemyIntersectsTopBound() {
+		Point2D.Double topLeftBoundPoint = player.getTopLeftBoundPoint();
+		double y = 447 - (.5 * topLeftBoundPoint.getX());
+		if (topLeftBoundPoint.getY() <= y) {
+			return true;
+		}
+		return false;
+	}
+
+	public boolean enemyIntersectsBottomBound() {
+		Point2D.Double bottomBoundPoint = player.getBottomBoundPoint();
+		double y = 960 - (.5 * bottomBoundPoint.getX());
+		if (bottomBoundPoint.getY() >= y) {
+			return true;
+		}
+		return false;
+	}
 
 	public boolean playerIntersectsLeftBound() {
 		return (player.getX() <= -300);
@@ -384,6 +475,14 @@ public class Game extends JPanel implements KeyListener, ActionListener {
 			if(enemy.getHeight() == player.getHeight()) {
 				Shape enemyBound = enemy.getBoundingShape();
 				if(intersects(playerBound, enemyBound)) {
+					return true;
+				}
+			}
+		}
+		for(StrafeEnemy strafeenemy : strafeenemies) {
+			if(strafeenemy.getHeight() == player.getHeight()) {
+				Shape strafeEnemyBound = strafeenemy.getBoundingShape();
+				if(intersects(playerBound, strafeEnemyBound)) {
 					return true;
 				}
 			}
@@ -454,9 +553,9 @@ public class Game extends JPanel implements KeyListener, ActionListener {
 				}
 				else if(mode == PLAY) {
 					player.shoot();
-					for (Enemy enemy : enemies) {
-						enemy.shoot();
-					}
+//					for (Enemy enemy : enemies) {
+//						enemy.shoot();
+//					}
 				}
 				else if(mode == GAME_OVER) {
 					reInitGame();
